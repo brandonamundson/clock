@@ -8,6 +8,10 @@ import {
 	Dimensions,
 } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
+import { Audio } from 'expo-av';
+const { Picsum } = require('picsum-photos');
+
+var playbackInstance = new Audio.Sound();
 
 export default class App extends Component {
 	constructor() {
@@ -23,12 +27,34 @@ export default class App extends Component {
 			'friday',
 			'saturday',
 		];
+		this.screenSize = {
+			x: Math.round(Dimensions.get('window').width),
+			y: Math.round(Dimensions.get('window').height),
+		};
+		this.img = Picsum.url({
+			height: this.screenSize.y,
+			width: this.screenSize.x,
+		});
 	}
 
-	componentDidMount() {
+	async componentDidMount() {
 		this.timer = setInterval(() => {
 			this.getCurrentTime();
 		}, 1000);
+		this.timer = setInterval(() => {
+			this.getNewImg();
+		}, 5000);
+		this.timer = setInterval(() => {
+			playbackInstance.loadAsync(require('./assets/tiktok_extended.mp3'));
+			playbackInstance.playAsync();
+		}, 1000);
+	}
+
+	async getNewImg() {
+		this.img = await Picsum.url({
+			height: this.screenSize.y,
+			width: this.screenSize.x,
+		});
 	}
 
 	getCurrentTime = () => {
@@ -70,6 +96,7 @@ export default class App extends Component {
 
 	componentWillUnmount() {
 		clearInterval(this.timer);
+		playbackInstance.unloadAsync();
 	}
 
 	render() {
@@ -77,13 +104,7 @@ export default class App extends Component {
 			<View style={styles.container}>
 				<ImageBackground
 					style={styles.image}
-					source={{
-						uri:
-							'https://picsum.photos/' +
-							Math.round(Dimensions.get('window').width) +
-							'/' +
-							Math.round(Dimensions.get('window').height),
-					}}
+					source={{ uri: this.img }}
 				>
 					<Text style={styles.daysText}>{this.state.currentDay}</Text>
 					<Text style={styles.timeText}>
@@ -101,7 +122,7 @@ const styles = StyleSheet.create({
 		paddingTop: Platform.OS === 'ios' ? 20 : 0,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: '#00ff50',
+		backgroundColor: '#000',
 	},
 	timeText: {
 		fontSize: Platform.OS === 'android' ? 70 : RFPercentage(13),

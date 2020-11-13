@@ -1,3 +1,6 @@
 {
-	"react-native.packager.port": 19001
+	"react-native.packager.port": 19001,
+	"prettier.singleQuote": true,
+	"prettier.useTabs": true,
+	"prettier.tabWidth": 4
 }
